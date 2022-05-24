@@ -1,0 +1,1 @@
+"Core\src\usart.s" SET (SMALL) DEBUG PRINT(.\Listings\usart.lst) OBJECT(.\Output\usart.obj) EP

@@ -1,0 +1,8 @@
+".\Output\STARTUP.obj",
+".\Output\Delay.obj",
+".\Output\main.obj",
+".\Output\lcd12864.obj" 
+TO ".\Output\LCD12864" 
+PRINT(".\Listings\LCD12864.m51") RAMSIZE(256) 
+CODE( 0X0000-0XEFFF )
+XDATA( 0X0000-0X03FF )

@@ -1,0 +1,7 @@
+".\Output\STARTUP.obj",
+".\Output\KeyBoard.obj",
+".\Output\main.obj",
+".\Output\Delay.obj",
+".\Output\usart.obj" 
+TO ".\Output\KeyBoard" 
+PRINT(".\Listings\KeyBoard.m51") RAMSIZE(256) 

@@ -1,0 +1,31 @@
+/**
+ * @file main.c
+ * @author Huffer342-WSH (718007138@qq.com)
+ * @brief LCD12864_ST7920´®ÐÐ²âÊÔ³ÌÐò
+ * @date 2022-04-15
+ *
+ * @copyright Copyright (c) 2022
+ *
+ */
+
+#include "main.h"
+#include "lcd12864_s.h"
+#include "delay.h"
+
+uint8_t xdata ScreenBuf[] = "0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrs";
+/*****Ö÷º¯Êý*****/
+void main(void)
+{
+    Delayms(500);
+    lcd12864_Init();
+    lcd12864_DDRAM(0, 0, "2019217123 ");
+    lcd12864_DDRAM(1, 1, "´®ÐÐ²âÊÔ³ÌÐò");
+    lcd12864_DDRAM(0, 2, "´®ÐÐ²âÊÔ³ÌÐò¹þ¹þ¹þ");
+    lcd12864_DDRAM(2, 3, "´®ÐÐ²âÊÔ³ÌÐò");
+    Delayms(1000);
+    while (1)
+    {
+        lcd12864_DDRAM_Flush(ScreenBuf);
+        Delayms(1000);
+    }
+}

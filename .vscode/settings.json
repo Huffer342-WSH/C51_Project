@@ -1,0 +1,15 @@
+{
+    "files.associations": {
+        "I2C.H": "cpp",
+        "intrins.h": "c",
+        "delay.h": "c",
+        "stc12c5a60s2.h": "c",
+        "lcd12864.h": "c",
+        "lcd12864_s.h": "c",
+        "main.h": "c",
+        "pcf8591.h": "c",
+        "string.h": "c",
+        "matkey.h": "c",
+        "nixietube_74hc595.h": "c"
+    }
+}

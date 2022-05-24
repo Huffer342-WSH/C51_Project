@@ -1,0 +1,8 @@
+".\Output\STARTUP.obj",
+".\Output\main.obj",
+".\Output\I2C.obj",
+".\Output\pcf8591.obj" 
+TO ".\Output\PCF8591" 
+PRINT(".\Listings\PCF8591.m51") RAMSIZE(256) 
+CODE( 0X0000-0XEFFF )
+XDATA( 0X0000-0X03FF )

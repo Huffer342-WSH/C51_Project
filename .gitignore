@@ -1,0 +1,12 @@
+
+*/Objects/
+*/Listings/
+
+
+*.bak
+*.obj
+*.huffer
+*.htm
+*.__i
+
+!*.hex

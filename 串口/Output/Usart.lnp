@@ -1,0 +1,7 @@
+".\Output\STARTUP.obj",
+".\Output\main.obj",
+".\Output\usart.obj" 
+TO ".\Output\Usart" 
+PRINT(".\Listings\Usart.m51") RAMSIZE(256) 
+CODE( 0X0000-0XEFFF )
+XDATA( 0X0000-0X03FF )
