@@ -9,8 +9,8 @@
  */
 
 #include "main.h"
-#include "lcd12864_s.h"
 #include "delay.h"
+#include "lcd12864_s.h"
 
 uint8_t xdata ScreenBuf[] = "0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrs";
 /*****Ö÷º¯Êý*****/

@@ -1,0 +1,12 @@
+{
+    "files.associations": {
+        "dht11.h": "c",
+        "delay.h": "c",
+        "usart.h": "c",
+        "main.h": "c",
+        "stc12c5a60s2.h": "c",
+        "stdio.h": "c",
+        "absacc.h": "c",
+        "ABSACC.H": "cpp"
+    }
+}

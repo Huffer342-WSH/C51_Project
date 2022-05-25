@@ -11,5 +11,6 @@
         "string.h": "c",
         "matkey.h": "c",
         "nixietube_74hc595.h": "c"
-    }
+    },
+    "C_Cpp.errorSquiggles": "Disabled"
 }
