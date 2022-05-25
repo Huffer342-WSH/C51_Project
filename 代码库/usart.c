@@ -1,35 +1,48 @@
 #include "usart.h"
 
-bit busy;
+#if USE_printf
+
+char putchar(char c)
+{
+    SendData(c);
+    return (c);
+}
+#endif
+
+static bit busy;
 
 /*----------------------------
 UART initialization
 ----------------------------*/
 
-void Uart_Init(void)  // 115200bps@11.0592MHz
+void Uart_Init(void) // 9600bps@11.0592MHz
 {
-  PCON &= 0x7F;  //²¨ÌØÂÊ²»±¶ËÙ
-  SCON = 0x50;   // 8Î»Êı¾İ,¿É±ä²¨ÌØÂÊ
-  AUXR &= 0xFB;  //¶¨Ê±Æ÷Ê±ÖÓ12TÄ£Ê½
-  BRT = 0xFD;    //ÉèÖÃ¶¨Ê±ÖØÔØÖµ
-  AUXR |= 0x01;  //´®¿Ú1Ê¹ÓÃ¶ÀÁ¢²¨ÌØÂÊ·¢ÉäÆ÷Îª²¨ÌØÂÊ·¢ÉúÆ÷
-  AUXR |= 0x10;  //Æô¶¯¶ÀÁ¢²¨ÌØÂÊ·¢ÉäÆ÷
+    PCON &= 0x7F; //æ³¢ç‰¹ç‡ä¸å€é€Ÿ
+    SCON = 0x50;  // 8ä½æ•°æ®,å¯å˜æ³¢ç‰¹ç‡
+    AUXR |= 0x04; //å®šæ—¶å™¨æ—¶é’Ÿ1Tæ¨¡å¼
+    BRT = 0xDC;   //è®¾ç½®å®šæ—¶é‡è½½å€¼
+    AUXR |= 0x01; //ä¸²å£1ä½¿ç”¨ç‹¬ç«‹æ³¢ç‰¹ç‡å‘å°„å™¨ä¸ºæ³¢ç‰¹ç‡å‘ç”Ÿå™¨
+    AUXR |= 0x10; //å¯åŠ¨ç‹¬ç«‹æ³¢ç‰¹ç‡å‘å°„å™¨
 
-  EA = 1;  //¿ª×ÜÖĞ¶Ï
-  ES = 1;  //¿ª´®¿ÚÖĞ¶Ï
+    TI = 1;
+    EA = 1; //å¼€æ€»ä¸­æ–­
+    ES = 1; //å¼€ä¸²å£ä¸­æ–­
 }
 
 /*----------------------------
 UART interrupt service routine
 ----------------------------*/
-void Uart_Isr() interrupt 4 {
-  if (RI) {
-    RI = 0;  // Clear receive interrupt flag
-  }
-  if (TI) {
-    TI = 0;    // Clear transmit interrupt flag
-    busy = 0;  // Clear transmit busy flag
-  }
+void Uart_Isr() interrupt 4
+{
+    if (RI)
+    {
+        RI = 0; // Clear receive interrupt flag
+    }
+    if (TI)
+    {
+        TI = 0;   // Clear transmit interrupt flag
+        busy = 0; // Clear transmit busy flag
+    }
 }
 
 #if USE_SendData
@@ -38,12 +51,13 @@ Send a byte data to UART
 Input: dat (data to be sent)
 Output:None
 ----------------------------*/
-void SendData(uint8 dat) {
-  while (busy)
-    ;         // Wait for the completion of the previous data is sent
-  ACC = dat;  // Calculate the even parity bit P (PSW.0)
-  busy = 1;
-  SBUF = ACC;  // Send data to UART buffer
+void SendData(uint8 dat)
+{
+    while (busy)
+        ;      // Wait for the completion of the previous data is sent
+    ACC = dat; // Calculate the even parity bit P (PSW.0)
+    busy = 1;
+    SBUF = ACC; // Send data to UART buffer
 }
 #endif
 
@@ -53,10 +67,11 @@ Send a string to UART
 Input: s (address of string)
 Output:None
 ----------------------------*/
-void SendString(char *s) {
-  while (*s)  // Check the end of the string
-  {
-    SendData(*s++);  // Send current char and increment string ptr
-  }
+void SendString(char *s)
+{
+    while (*s) // Check the end of the string
+    {
+        SendData(*s++); // Send current char and increment string ptr
+    }
 }
 #endif
