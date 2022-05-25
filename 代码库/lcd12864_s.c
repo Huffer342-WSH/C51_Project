@@ -1,7 +1,7 @@
 /**
  * @file lcd12864.c
  * @author Huffer342-WSH (718007138@qq.com)
- * @brief LCD12864_ST7920ä¸²è¡Œæµ‹è¯•ç¨‹åº
+ * @brief LCD12864_ST7920´®ĞĞ²âÊÔ³ÌĞò
  * @date 2022-04-15
  *
  * @copyright Copyright (c) 2022
@@ -10,182 +10,252 @@
 
 #include "lcd12864_s.h"
 
-uint8_t code DDRAM_POS[8] = {0x80, 0x90, 0x88, 0x98, 0xA0,
-                             0xB0, 0xA8, 0xB8};  //ä¸€äºŒä¸‰å››è¡Œå¯¹åº”çš„å¼€å¤´åæ ‡
+uint8_t code DDRAM_POS[8] = {0x80, 0x90, 0x88, 0x98, 0xA0, 0xB0, 0xA8, 0xB8}; //Ò»¶şÈıËÄĞĞ¶ÔÓ¦µÄ¿ªÍ·×ø±ê
 
-/*****ä¸²è¡Œå‘é€ä¸€ä¸ªå­—èŠ‚*****/
-static void SendByte(uint8_t Dbyte) {
-  uint8_t i;
-  GLOBAL_IT_CLOSE();
-  for (i = 0; i < 8; i++) {
-    LCD_SCLK = 0;
-    Dbyte <<= 1;   //å·¦ç§»ä¸€ä½
-    LCD_SID = CY;  //æº¢å‡ºå¯„å­˜å™¨
-    LCD_SCLK = 1;
-    LCD_SCLK = 0;
-  }
-  GLOBAL_IT_OPEN();
+/**
+ * @brief ´®ĞĞ·¢ËÍÒ»¸ö×Ö½Ú
+ *
+ * @param Dbyte
+ */
+static void SendByte(uint8_t Dbyte)
+{
+    uint8_t i;
+    GLOBAL_IT_CLOSE();
+    for (i = 0; i < 8; i++)
+    {
+        LCD12864_SCLK = 0;
+        Dbyte <<= 1;       //×óÒÆÒ»Î»
+        LCD12864_SID = CY; //Òç³ö¼Ä´æ
+        LCD12864_SCLK = 1;
+        LCD12864_SCLK = 0;
+    }
+    GLOBAL_IT_OPEN();
 }
 
-/*****ä¸²è¡Œæ¥æ”¶ä¸€ä¸ªå­—èŠ‚*****/
-static uint8_t ReceiveByte(void) {
-  uint8_t i, temp1, temp2;
-  temp1 = 0;
-  temp2 = 0;
-  GLOBAL_IT_CLOSE();
-  for (i = 0; i < 8; i++) {
-    temp1 = temp1 << 1;
-    LCD_SCLK = 0;
-    LCD_SCLK = 1;
-    LCD_SCLK = 0;
-    if (LCD_SID) temp1++;
-  }
-  for (i = 0; i < 8; i++) {
-    temp2 = temp2 << 1;
-    LCD_SCLK = 0;
-    LCD_SCLK = 1;
-    LCD_SCLK = 0;
-    if (LCD_SID) temp2++;
-  }
-  GLOBAL_IT_OPEN();
-  return ((0xf0 & temp1) + (0x0f & temp2));
+/**
+ * @brief ´®ĞĞ½ÓÊÕÒ»¸ö×Ö½Ú
+ *
+ * @return uint8_t
+ */
+static uint8_t ReceiveByte(void)
+{
+    uint8_t i, temp1, temp2;
+    temp1 = 0;
+    temp2 = 0;
+    GLOBAL_IT_CLOSE();
+    for (i = 0; i < 8; i++)
+    {
+        temp1 = temp1 << 1;
+        LCD12864_SCLK = 0;
+        LCD12864_SCLK = 1;
+        LCD12864_SCLK = 0;
+        if (LCD12864_SID)
+            temp1++;
+    }
+    for (i = 0; i < 8; i++)
+    {
+        temp2 = temp2 << 1;
+        LCD12864_SCLK = 0;
+        LCD12864_SCLK = 1;
+        LCD12864_SCLK = 0;
+        if (LCD12864_SID)
+            temp2++;
+    }
+    GLOBAL_IT_OPEN();
+    return ((0xf0 & temp1) + (0x0f & temp2));
 }
 
-/*****æ£€æµ‹LCDå¿™çŠ¶æ€*****/
-void lcd12864_Wait(void) {
-  do SendByte(0xfc);             // 11111,RW(1),RS(0),0
-  while (0x80 & ReceiveByte());  // BF(.7)=1 Busy
+/**
+ * @brief µÈ´ıLCD12864¿ÕÏĞ
+ *
+ */
+void lcd12864_Wait(void)
+{
+    do
+    {
+        delayms(5);
+        SendByte(0xfc);             // 11111,RW(1),RS(0),0
+    } while (0x80 & ReceiveByte()); // BF(.7)=1 Busy
 }
 
-void lcd12864_WriteOpt(uint8 option, uint8 byte) {
+/**
+ * @brief ·¢ËÍÊı¾İ/Ö¸Áî
+ *
+ * @param option 0>>Ğ´Ö¸Áî 1>>Ğ´Êı¾İ
+ * @param byte ´ı´«ÊäµÄ×Ö½Ú
+ */
+void lcd12864_WriteOpt(uint8 option, uint8 byte)
+{
 #if USECS
-  CS = 1;
+    CS = 1;
 #endif
-  lcd12864_Wait();
-  SendByte(option ? 0xfa : 0xf8);  // 11111,RW(0),RS(0),0
-  SendByte(0xf0 & byte);           //é«˜å››ä½
-  SendByte(0xf0 & byte << 4);      //ä½å››ä½(å…ˆæ‰§è¡Œ<<)
+    lcd12864_Wait();
+    SendByte(option ? 0xfa : 0xf8); // 11111,RW(0),RS(0),0
+    SendByte(0xf0 & byte);          //¸ßËÄÎ»
+    SendByte(0xf0 & byte << 4);     //µÍËÄÎ»
 #if USECS
-  CS = 0;
+    CS = 0;
 #endif
 }
 
 #if !USE_MACRO
-/*****å†™æŒ‡ä»¤*****/
+/*****Ğ´Ö¸*****/
 
-void lcd12864_WriteCmd(uint8_t Cbyte) {
+void lcd12864_WriteCmd(uint8_t Cbyte)
+{
 #if USECS
-  CS = 1;
+    CS = 1;
 #endif
-  lcd12864_Wait();
-  SendByte(0xf8);               // 11111,RW(0),RS(0),0
-  SendByte(0xf0 & Cbyte);       //é«˜å››ä½
-  SendByte(0xf0 & Cbyte << 4);  //ä½å››ä½(å…ˆæ‰§è¡Œ<<)
+    lcd12864_Wait();
+    SendByte(0xf8);              // 11111,RW(0),RS(0),0
+    SendByte(0xf0 & Cbyte);      //¸ßËÄ
+    SendByte(0xf0 & Cbyte << 4); //µÍËÄ(ÏÈÖ´<<)
 #if USECS
-  CS = 0;
+    CS = 0;
 #endif
 }
 
-/*****å†™æ•°æ®*****/
-void lcd12864_WriteData(uint8_t Dbyte) {
+/*****Ğ´Êı*****/
+void lcd12864_WriteData(uint8_t Dbyte)
+{
 #if USECS
-  CS = 1;
+    CS = 1;
 #endif
-  lcd12864_Wait();
-  SendByte(0xfa);               // 11111,RW(0),RS(1),0
-  SendByte(0xf0 & Dbyte);       //é«˜å››ä½
-  SendByte(0xf0 & Dbyte << 4);  //ä½å››ä½(å…ˆæ‰§è¡Œ<<)
+    lcd12864_Wait();
+    SendByte(0xfa);              // 11111,RW(0),RS(1),0
+    SendByte(0xf0 & Dbyte);      //¸ßËÄ
+    SendByte(0xf0 & Dbyte << 4); //µÍËÄ(ÏÈÖ´<<)
 #if USECS
-  CS = 0;
+    CS = 0;
 #endif
 }
 #endif
 
-/*****åˆå§‹åŒ–LCD*****/
-void lcd12864_Init(void) {
+/**
+ * @brief ³õÊ¼»¯LCD
+ *
+ */
+void lcd12864_Init(void)
+{
 #if USEPSB
-  PSB = 0;
+    PSB = 0;
 #endif
-  delayms(50);
-  lcd12864_WriteCmd(0x34);  //é€‰æ‹©æ‹“å±•æŒ‡ä»¤é›†
-  delayms(1);
-  lcd12864_WriteCmd(0x30);  //é€‰æ‹©8bitæ•°æ®æµ
-  delayms(1);
-  lcd12864_WriteCmd(0x0c);  //å¼€æ˜¾ç¤º(æ— æ¸¸æ ‡ã€ä¸åç™½)
-  delayms(1);
-  lcd12864_WriteCmd(0x06);  //è®¾ç½®æ¸¸æ ‡è¿åŠ¨æ–¹å‘
-  delayms(1);
-  lcd12864_WriteCmd(0x01);  //æ¸…é™¤æ˜¾ç¤ºï¼Œå¹¶ä¸”è®¾å®šåœ°å€æŒ‡é’ˆä¸º00H
-  delayms(20);
-  lcd12864_WriteCmd(0x06);  //æ¸…é™¤æ˜¾ç¤ºï¼Œå¹¶ä¸”è®¾å®šåœ°å€æŒ‡é’ˆä¸º00H
+    delayms(50);
+    lcd12864_WriteCmd(0x34); //Ñ¡ÔñÍØÕ¹Ö¸Áî
+    delayms(1);
+    lcd12864_WriteCmd(0x30); //Ñ¡Ôñ8bitÊı¾İ
+    delayms(1);
+    lcd12864_WriteCmd(0x0c); //¿ªÏÔÊ¾(ÎŞÓÎ±ê¡¢²»·´°×)
+    delayms(1);
+    lcd12864_WriteCmd(0x06); //ÉèÖÃÓÎ±êÔË¶¯·½Ïò
+    delayms(1);
+    lcd12864_WriteCmd(0x01); //Çå³ıÏÔÊ¾£¬²¢ÇÒÉè¶¨µØÖ·Ö¸Õë
+    delayms(20);
+    lcd12864_WriteCmd(0x06);
+    delayms(50);
 }
 
-/*****æ˜¾ç¤ºå­—ç¬¦ä¸²*****/
 #if USE_lcd12864_DDRAM
-void lcd12864_DDRAM(uint8_t x, uint8_t y, uint8_t *c) {
-  if (x < 7 && y < 8)  //é˜²æ­¢æº¢å‡º
-  {
-    lcd12864_WriteCmd(DDRAM_POS[y] + x);
-    while (*c) {
-      lcd12864_WriteData(*c);
-      c++;
+
+/**
+ * @brief ÏÔÊ¾×Ö·û´®,ÒÔ'\0'½áÎ²
+ *
+ * @param m ĞĞ
+ * @param n ÁĞ
+ * @param s ×Ö·û´®
+ */
+void lcd12864_DDRAM(uint8_t m, uint8_t n, uint8_t *s)
+{
+    if (m < 7 && n < 8) //·ÀÖ¹Òç³ö
+    {
+        lcd12864_WriteCmd(DDRAM_POS[m] + n);
+        while (*s)
+        {
+            lcd12864_WriteData(*s);
+            s++;
+        }
     }
-  }
+}
+
+/**
+ * @brief ÏÔÊ¾×Ö·û´®,³¤¶Èlen
+ *
+ * @param m ĞĞ
+ * @param n ÁĞ
+ * @param s ×Ö·û´®
+ * @param len
+ */
+void lcd12864_DDRAM_plus(uint8_t m, uint8_t n, uint8_t *s, uint8 len)
+{
+
+    data uint8_t i;
+    if (n < 8 && m < 8) //·ÀÖ¹Òç³ö
+    {
+        lcd12864_WriteCmd(DDRAM_POS[m] + n);
+        i = 0;
+        while (i < len)
+        {
+            lcd12864_WriteData(s[i]);
+            i++;
+        }
+    }
 }
 #endif
-
-void lcd12864_DDRAM_plus(uint8_t x, uint8_t y, uint8_t *c, uint8 len) {
-  data uint8_t i;
-  if (x < 7 && y < 8)  //é˜²æ­¢æº¢å‡º
-  {
-    lcd12864_WriteCmd(DDRAM_POS[y] + x);
-    i = 0;
-    while (i < len) {
-      lcd12864_WriteData(c[i]);
-      i++;
-    }
-  }
-}
 
 #if USE_lcd12864_DDRAM_Flush
-void lcd12864_DDRAM_Flush(uint8_t xdata *c) {
-  uint8_t i, j;
-  uint8_t code jstep[] = {0, 34, 17, 51};
-  lcd12864_WriteCmd(0x80);
-  for (j = 0; j < 4; j++) {
-    for (i = 0; i < 16; i++) {
-      lcd12864_WriteData(c[jstep[j] + i] ? c[jstep[j] + i]
-                                         : ' ');  //'\0'ç”¨ç©ºæ ¼' 'ä»£æ›¿
-    }
-  }
-}
-#endif
-/*****æ˜¾ç¤ºå›¾ç‰‡ï¼ˆæ˜¾ç¤ºGdramå†…å®¹ï¼‰*****/
-
-/*ç»˜å›¾æ˜¾ç¤ºçš„æ­¥éª¤
-1 å…³é—­ç»˜å›¾æ˜¾ç¤ºåŠŸèƒ½
-2 å…ˆå°†å‚ç›´çš„åæ ‡(Y)å†™å…¥ç»˜å›¾RAMåœ°å€
-3 å†å°†æ°´å¹³çš„ä½å…ƒç»„åæ ‡(X)å†™å…¥ç»˜å›¾RAMåœ°å€
-4 å°†D15ï¼D8å†™å…¥RAMä¸­
-5 å°†D7ï¼D0å†™å…¥åˆ°RAMä¸­
-6 æ‰“å¼€ç»˜å›¾æ˜¾ç¤ºåŠŸèƒ½*/
-
-//å›¾ç‰‡å–æ¨¡æ–¹å¼ï¼šæ¨ªå‘å–æ¨¡ï¼Œå­—èŠ‚æ­£åº
-#if USE_lcd12864_GDRAM
-void lcd12864_GDRAM(uint8_t *pic)  //æ˜¾ç¤ºGdramå†…å®¹ï¼ˆæ˜¾ç¤ºå›¾ç‰‡ï¼‰
+/**
+ * @brief Ë¢Ğ´ÆÁÄ»
+ *
+ * @param str ´ıË¢ÈëµÄ×Ö·û´®
+ * @param lineLength Ã¿ĞĞµÄ³¤¶È
+ */
+void lcd12864_DDRAM_Flush(uint8_t *str, uint8 lineLength)
 {
-  uint8_t x, y, i;
-  for (i = 0; i < 9; i = i + 8)
-    for (y = 0; y < 32; y++) {
-      for (x = 0; x < 8; x++) {
-        lcd12864_WriteCmd(0x36);          //æ‰©å……æŒ‡ä»¤ï¼Œå¼€ç»˜å›¾æ˜¾ç¤º
-        lcd12864_WriteCmd(0x80 + y);      //è¡Œåœ°å€
-        lcd12864_WriteCmd(0x80 + x + i);  //åˆ—åœ°å€
-        lcd12864_WriteData(*pic++);       //å†™æ•°æ® D15ï¼D8
-        lcd12864_WriteData(*pic++);       //å†™æ•°æ® D7ï¼D0
-        lcd12864_WriteCmd(0x30);
-      }
+    uint8_t i, j;
+    uint8_t jstep[4];
+    jstep[0] = 0;
+    jstep[1] = lineLength * 2;
+    jstep[2] = lineLength;
+    jstep[3] = lineLength * 3;
+    lcd12864_WriteCmd(0x80);
+    for (j = 0; j < 4; j++)
+    {
+        for (i = 0; i < 16; i++)
+        {
+            lcd12864_WriteData(str[jstep[j] + i] ? str[jstep[j] + i] : ' '); //'\0'ÓÃ¿Õ¸ñ' '´úÌæ
+        }
     }
+}
+
+#endif
+/*****ÏÔÊ¾Í¼Æ¬£¨ÏÔÊ¾GdramÄÚÈİ*****/
+
+/*»æÍ¼ÏÔÊ¾µÄ²½
+1 ¹Ø±Õ»æÍ¼ÏÔÊ¾¹¦ÄÜ
+2 ÏÈ½«´¹Ö±µÄ×ø(Y)Ğ´Èë»æÍ¼RAMµØÖ·
+3 ÔÙ½«Ë®Æ½µÄÎ»Ôª×é×ø±ê(X)Ğ´Èë»æÍ¼RAMµØÖ·
+4 ½«D15£­D8Ğ´ÈëRAM
+5 ½«D7£­D0Ğ´Èëµ½RAM
+6 ´ò¿ª»æÍ¼ÏÔÊ¾¹¦ÄÜ*/
+
+//Í¼Æ¬È¡Ä£·½Ê½£ººáÏòÈ¡Ä££¬×Ö½ÚÕıĞò
+#if USE_lcd12864_GDRAM
+void lcd12864_GDRAM(uint8_t *pic) //ÏÔÊ¾GdramÄÚÈİ£¨ÏÔÊ¾Í¼Æ¬£©
+{
+    uint8_t x, y, i;
+    for (i = 0; i < 9; i = i + 8)
+        for (y = 0; y < 32; y++)
+        {
+            for (x = 0; x < 8; x++)
+            {
+                lcd12864_WriteCmd(0x36);         //À©³äÖ¸Áî£¬¿ª»æÍ¼ÏÔÊ¾
+                lcd12864_WriteCmd(0x80 + y);     //ĞĞµØÖ·
+                lcd12864_WriteCmd(0x80 + x + i); //ÁĞµØÖ·
+                lcd12864_WriteData(*pic++);      //Ğ´Êı D15£­D8
+                lcd12864_WriteData(*pic++);      //Ğ´Êı D7£­D0
+                lcd12864_WriteCmd(0x30);
+            }
+        }
 }
 #endif
 
@@ -193,74 +263,80 @@ void lcd12864_GDRAM(uint8_t *pic)  //æ˜¾ç¤ºGdramå†…å®¹ï¼ˆæ˜¾ç¤ºå›¾ç‰‡ï¼‰
 
 #if USE_lcd12864_HCDisp
 /**
- * @brief æ¨ªå‘æ»šåŠ¨æ˜¾ç¤ºä¸€æ®µå­—ç¬¦
+ * @brief ºáÏò¹ö¶¯ÏÔÊ¾Ò»¶Î×Ö
  *
- * @param buf ç¼“å†²åŒº è‡³å°‘17å­—èŠ‚
- * @param str éœ€è¦æ˜¾ç¤ºçš„å­—ç¬¦ä¸²
- * @param len å­—ç¬¦ä¸²é•¿åº¦
- * @param pos_begin å¼€å§‹ä½ç½®
- * @param pos_end ç»“æŸä½ç½®
- * @param ms é—´éš”æ—¶é—´
+ * @param buf »º³å ÖÁÉÙ17×Ö½Ú
+ * @param str ĞèÒªÏÔÊ¾µÄ×Ö·û
+ * @param len ×Ö·û´®³¤
+ * @param pos_begin ¿ªÊ¼Î»
+ * @param pos_end ½áÊøÎ»ÖÃ
+ * @param ms ¼ä¸ôÊ±¼ä
  */
-void lcd12864_HCDisp(unsigned char *buf, char *str, char len, char pos_begin,
-                     char pos_end,
-                     unsigned int ms)  //æ¨ªå‘æ»šåŠ¨æ˜¾ç¤ºä¸€æ®µå­—ç¬¦
+void lcd12864_HCDisp(unsigned char *buf, char *str, char len, char pos_begin, char pos_end,
+                     unsigned int ms) //ºáÏò¹ö¶¯ÏÔÊ¾Ò»¶Î×Ö
 {
-  char i, j;
+    char i, j;
 
-  for (; pos_begin != pos_end; pos_begin += (pos_begin > pos_end ? -1 : 1)) {
-    memset(buf, ' ', 16);
-    buf[16] = 0;
-    for (i = pos_begin, j = 0; (i < pos_begin + 16) && (j < len); i++, j++) {
-      if (i >= 0 && i < 16) {
-        buf[i] = str[j];
-      }
+    for (; pos_begin != pos_end; pos_begin += (pos_begin > pos_end ? -1 : 1))
+    {
+        memset(buf, ' ', 16);
+        buf[16] = 0;
+        for (i = pos_begin, j = 0; (i < pos_begin + 16) && (j < len); i++, j++)
+        {
+            if (i >= 0 && i < 16)
+            {
+                buf[i] = str[j];
+            }
+        }
+        lcd12864_DDRAM(0, 1, buf);
+        Delayms(ms);
     }
-    lcd12864_DDRAM(0, 1, buf);
-    Delayms(ms);
-  }
 }
 #endif
 
 #if USE_lcd12864_HCDisp2
-void lcd12864_HCDisp2(unsigned char *buf, char *str1, char *str2, char len,
-                      char pos_begin1, char pos_end1, char pos_begin2,
-                      char pos_end2,
-                      unsigned int ms)  //æ¨ªå‘æ»šåŠ¨æ˜¾ç¤ºä¸€æ®µå­—ç¬¦
+void lcd12864_HCDisp2(unsigned char *buf, char *str1, char *str2, char len, char pos_begin1, char pos_end1,
+                      char pos_begin2, char pos_end2,
+                      unsigned int ms) //ºáÏò¹ö¶¯ÏÔÊ¾Ò»¶Î×Ö
 {
-  char i, j;
-  pos_end1 += (pos_begin1 > pos_end1 ? -1 : 1);
-  pos_end2 += (pos_begin2 > pos_end2 ? -1 : 1);
-  while (pos_begin1 != pos_end1 || pos_begin2 != pos_end2) {
-    if (pos_begin1 != pos_end1) {
-      memset(buf, ' ', 16);
+    char i, j;
+    pos_end1 += (pos_begin1 > pos_end1 ? -1 : 1);
+    pos_end2 += (pos_begin2 > pos_end2 ? -1 : 1);
+    while (pos_begin1 != pos_end1 || pos_begin2 != pos_end2)
+    {
+        if (pos_begin1 != pos_end1)
+        {
+            memset(buf, ' ', 16);
 
-      for (i = pos_begin1, j = 0; (i < pos_begin1 + 16) && (j < len);
-           i++, j++) {
-        if (i >= 0 && i < 16) {
-          buf[i] = str1[j];
+            for (i = pos_begin1, j = 0; (i < pos_begin1 + 16) && (j < len); i++, j++)
+            {
+                if (i >= 0 && i < 16)
+                {
+                    buf[i] = str1[j];
+                }
+            }
+            buf[16] = 0;
+            lcd12864_DDRAM(0, 1, buf);
+            pos_begin1 += (pos_begin1 > pos_end1 ? -1 : 1);
         }
-      }
-      buf[16] = 0;
-      lcd12864_DDRAM(0, 1, buf);
-      pos_begin1 += (pos_begin1 > pos_end1 ? -1 : 1);
-    }
 
-    Delayms(ms / 2);
-    if (pos_begin2 != pos_end2) {
-      memset(buf, ' ', 16);
-      buf[16] = 0;
-      for (i = pos_begin2, j = 0; (i < pos_begin2 + 16) && (j < len);
-           i++, j++) {
-        if (i >= 0 && i < 16) {
-          buf[i] = str2[j];
+        Delayms(ms / 2);
+        if (pos_begin2 != pos_end2)
+        {
+            memset(buf, ' ', 16);
+            buf[16] = 0;
+            for (i = pos_begin2, j = 0; (i < pos_begin2 + 16) && (j < len); i++, j++)
+            {
+                if (i >= 0 && i < 16)
+                {
+                    buf[i] = str2[j];
+                }
+            }
+            lcd12864_DDRAM(0, 2, buf);
+            pos_begin2 += (pos_begin2 > pos_end2 ? -1 : 1);
         }
-      }
-      lcd12864_DDRAM(0, 2, buf);
-      pos_begin2 += (pos_begin2 > pos_end2 ? -1 : 1);
+        Delayms(ms / 2);
     }
-    Delayms(ms / 2);
-  }
 }
 
 #endif
