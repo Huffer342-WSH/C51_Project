@@ -5,45 +5,91 @@
 #include "string.h"
 
 #include "delay.h"
-
+#include "dht11.h"
 #include "lcd12864_s.h"
+#include "usart.h"
 
 void BootAnime();
-//å±å¹•ç¼“å­˜
+void tm0_init();
+//ÆÁÄ»»º´æ
 uint8_t ScreenBuf[72];
+uint16 tm0Count; //¶¨Ê±Æ÷0ÖĞ¶Ï¼ÆÊı
+uint8 humi_real, temp_real;
+
 #define N 18
+#define LINE(x) ScreenBuf + x *N
 void main(void)
 {
+    uint8 i, j, k;
 
-    /*-------------------åˆå§‹åŒ–---------------------------------*/
-    P4SW = 0xff;              // P4ç«¯å£å‡åšIOï¼ˆP4.7é™¤å¤–ï¼‰
-    P0M0 = 0x00, P0M1 = 0x00; // P0æ¼å¼±ä¸Šæ‹‰ï¼ŒåŒå‘IO
-
-    memset(ScreenBuf, " ", sizeof(ScreenBuf));
+    /*-------------------³õÊ¼»¯---------------------------------*/
+    P4SW = 0xff;              // P4¶Ë¿Ú¾ù×öIO£¨P4.7³ıÍâ£©
+    P0M0 = 0x00, P0M1 = 0x00; // P0Â©ÈõÉÏÀ­£¬Ë«ÏòIO
+    Uart_Init();
     lcd12864_Init();
+    tm0_init();
+    printf("hello\r\n");
     BootAnime();
+    lcd12864_Init();
+    i = 'A';
+    memset(ScreenBuf, ' ', sizeof(ScreenBuf));
     while (1)
     {
+        sprintf(LINE(0), "ÎÂ¶È:%-3buÊª¶È:%-3bu", temp_real, humi_real);
+        lcd12864_DDRAM_Flush(ScreenBuf, N);
+        delayms(200);
     }
-
-    /*å¼€å±åŠ¨ç”»*/
 }
-
+/*¿ªÆÁ¶¯»­*/
 void BootAnime()
 {
     uint8 i = 0;
     lcd12864_Init();
     delayms(500);
     lcd12864_DDRAM(0, 0, "      ICCS");
-    lcd12864_DDRAM(0, 1, "      1085");
+    lcd12864_DDRAM(1, 0, "      1085");
 
     for (i = 0; i < 32; i++)
     {
-        lcd12864_WriteCmd(0x34);     //å¼€å¯æ‹“å±•æŒ‡ä»¤
-        lcd12864_WriteCmd(0x03);     //å…è®¸å†™å…¥å·åŠ¨åœ°å€
-        lcd12864_WriteCmd(0x40 + i); //å†™å…¥å·åŠ¨åœ°å€
+        lcd12864_WriteCmd(0x34);     //¿ªÆôÍØÕ¹Ö¸Áî
+        lcd12864_WriteCmd(0x03);     //ÔÊĞíĞ´Èë¾í¶¯µØÖ·
+        lcd12864_WriteCmd(0x40 + i); //Ğ´Èë¾í¶¯µØÖ·
         delayms(80);
         // lcd12864_WriteCmd(0x30);
         // lcd12864_WriteCmd(0x05);
     }
+}
+
+/* Timer0 interrupt routine */
+void tm0_isr() interrupt 1
+{
+    //¼ÆÊ±Æ÷ÖØ×°
+    TL0 = 0x00;
+    TH0 = 0x4C;
+    // 50*40=2000,Á½ÃëÒ»´Î£¬¶ÁÈ¡Êı¾İ
+    if (tm0Count-- == 0)
+    {
+        tm0Count = 40;
+        DHT11_Read(&humi_real, &temp_real);
+    }
+}
+
+/**
+ * @brief ¶¨Ê±Æ÷0³õÊ¼»¯£¬ÖÜÆÚ50ms
+ *
+ */
+void tm0_init()
+{
+
+    AUXR &= 0x7F; //¶¨Ê±Æ÷Ê±ÖÓ12TÄ£Ê½
+    TMOD &= 0xF0; //ÉèÖÃ¶¨Ê±Æ÷Ä£Ê½
+    TMOD |= 0x01; //ÉèÖÃ¶¨Ê±Æ÷Ä£Ê½
+    TL0 = 0x00;   //ÉèÖÃ¶¨Ê±³õÊ¼Öµ
+    TH0 = 0x4C;   //ÉèÖÃ¶¨Ê±³õÊ¼Öµ
+    TF0 = 0;      //Çå³ıTF0±êÖ¾
+    TR0 = 1;      //¶¨Ê±Æ÷0¿ªÊ¼¼ÆÊ±
+
+    ET0 = 1;      // enable timer0 interrupt
+    EA = 1;       // open global interrupt switch
+    tm0Count = 0; // initial counter
 }
