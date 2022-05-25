@@ -28,9 +28,9 @@ static uint8 read() //接收一个字节//
 
 uint8 DHT11_Read(uint8 *humidity, uint8 *temperature)
 {
-    uint8 TH, TL, HH, HL,  check;
+    uint8 TH, TL, HH, HL, check;
     DHT11_DIO = 1;
-    delayms(50);
+      delayms(50);
     // 主机把总线拉低必须大于18ms保证DHT11能检测到起始信号
     DHT11_DIO = 0;
     delayms(20);
