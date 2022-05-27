@@ -1,0 +1,12 @@
+{
+    "files.associations": {
+        "*.H": "c",
+        "MAIN.C": "cpp",
+        "RC522.C": "cpp",
+        "system.h": "cpp",
+        "stdio.h": "cpp",
+        "rc522.h": "cpp",
+        "main.h": "cpp"
+    },
+    "files.encoding": "gbk"
+}
