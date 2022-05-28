@@ -45,12 +45,12 @@
             <NotGenerated>0</NotGenerated>
             <InvalidFlash>1</InvalidFlash>
           </TargetStatus>
-          <OutputDirectory>.\Output\</OutputDirectory>
-          <OutputName>KeyBoard</OutputName>
+          <OutputDirectory>.\Objects\</OutputDirectory>
+          <OutputName>矩阵键盘</OutputName>
           <CreateExecutable>1</CreateExecutable>
           <CreateLib>0</CreateLib>
           <CreateHexFile>1</CreateHexFile>
-          <DebugInformation>0</DebugInformation>
+          <DebugInformation>1</DebugInformation>
           <BrowseInformation>1</BrowseInformation>
           <ListingPath>.\Listings\</ListingPath>
           <HexFormatSelection>0</HexFormatSelection>
@@ -186,7 +186,7 @@
         </Utilities>
         <Target51>
           <Target51Misc>
-            <MemoryModel>0</MemoryModel>
+            <MemoryModel>2</MemoryModel>
             <RTOS>0</RTOS>
             <RomSize>2</RomSize>
             <DataHold>0</DataHold>
@@ -233,7 +233,7 @@
               <RCB>
                 <Type>0</Type>
                 <StartAddress>0x0</StartAddress>
-                <Size>0xffff</Size>
+                <Size>0x10000</Size>
               </RCB>
               <RXB>
                 <Type>0</Type>
@@ -314,9 +314,9 @@
             <uAregs>0</uAregs>
             <UseInterruptVector>1</UseInterruptVector>
             <Fuzzy>3</Fuzzy>
-            <Optimize>9</Optimize>
+            <Optimize>8</Optimize>
             <WarningLevel>2</WarningLevel>
-            <SizeSpeed>0</SizeSpeed>
+            <SizeSpeed>1</SizeSpeed>
             <ObjectExtend>1</ObjectExtend>
             <ACallAJmp>0</ACallAJmp>
             <InterruptVectorAddress>0</InterruptVectorAddress>
@@ -324,7 +324,7 @@
               <MiscControls></MiscControls>
               <Define></Define>
               <Undefine></Undefine>
-              <IncludePath>.\Core\inc</IncludePath>
+              <IncludePath></IncludePath>
             </VariousControls>
           </C51>
           <Ax51>
@@ -387,24 +387,24 @@
           <GroupName>Core</GroupName>
           <Files>
             <File>
-              <FileName>KeyBoard.c</FileName>
+              <FileName>delay.c</FileName>
               <FileType>1</FileType>
-              <FilePath>.\Core\src\KeyBoard.c</FilePath>
+              <FilePath>.\Core\delay.c</FilePath>
             </File>
             <File>
               <FileName>main.c</FileName>
               <FileType>1</FileType>
-              <FilePath>.\Core\src\main.c</FilePath>
+              <FilePath>.\Core\main.c</FilePath>
             </File>
             <File>
-              <FileName>Delay.c</FileName>
+              <FileName>matkey.c</FileName>
               <FileType>1</FileType>
-              <FilePath>.\Core\src\Delay.c</FilePath>
+              <FilePath>.\Core\matkey.c</FilePath>
             </File>
             <File>
               <FileName>usart.c</FileName>
               <FileType>1</FileType>
-              <FilePath>.\Core\src\usart.c</FilePath>
+              <FilePath>.\Core\usart.c</FilePath>
             </File>
           </Files>
         </Group>
