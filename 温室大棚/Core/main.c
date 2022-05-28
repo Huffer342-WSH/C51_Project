@@ -331,21 +331,31 @@ void stateDefault()
 }
 void alarm()
 {
+    static uint8 alarmTH = 0, alarmLight = 0;
     //温湿度报警
     if (temp_real > temp_th || humi_real > humi_th)
     {
-        printf("温湿度超限\r\n");
-        fanCount = 100;
+        if (alarmTH == 0)
+        {
+            printf("温湿度超限\r\n");
+            alarmTH = 1;
+            fanCount = 100;
+        }
         FAN_ON();
     }
     else if (fanCount == 0)
     {
+        alarmTH = 0;
         FAN_OFF();
     }
     //光照报警
     if (light_real < light_th)
     {
-        printf("光照亮度偏低\r\n");
+        if (alarmLight == 0)
+        {
+            printf("光照亮度偏低\r\n");
+            alarmLight = 1;
+        }
         if (light_real < light_th / 3)
         {
             PWM_SetCAP1(LED_H);
@@ -361,6 +371,7 @@ void alarm()
     }
     else
     {
+        alarmLight = 0;
         LED_OFF();
     }
 }
