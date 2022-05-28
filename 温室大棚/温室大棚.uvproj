@@ -314,9 +314,9 @@
             <uAregs>0</uAregs>
             <UseInterruptVector>1</UseInterruptVector>
             <Fuzzy>3</Fuzzy>
-            <Optimize>8</Optimize>
+            <Optimize>9</Optimize>
             <WarningLevel>2</WarningLevel>
-            <SizeSpeed>1</SizeSpeed>
+            <SizeSpeed>0</SizeSpeed>
             <ObjectExtend>1</ObjectExtend>
             <ACallAJmp>0</ACallAJmp>
             <InterruptVectorAddress>0</InterruptVectorAddress>
@@ -410,6 +410,26 @@
               <FileName>usart.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\Core\usart.c</FilePath>
+            </File>
+            <File>
+              <FileName>bh1750.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\Core\bh1750.c</FilePath>
+            </File>
+            <File>
+              <FileName>pwm.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\Core\pwm.c</FilePath>
+            </File>
+            <File>
+              <FileName>rc522.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\Core\rc522.c</FilePath>
+            </File>
+            <File>
+              <FileName>matkey.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\Core\matkey.c</FilePath>
             </File>
           </Files>
         </Group>

@@ -2,5 +2,6 @@
     "files.associations": {
         "stc12c5a60s2.h": "c",
         "STC12C5A60S2.H": "cpp"
-    }
+    },
+    "files.encoding": "gbk"
 }

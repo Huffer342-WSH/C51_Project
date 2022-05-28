@@ -4,13 +4,13 @@
 #include "delay.h"
 #include "main.h"
 
-//ä¸²å¹¶è¡Œå¼•è„šå‘½å:RS = CS  RW = SID_lcd  E = SCLK_lcd
+//´®²¢ĞĞÒı½ÅÃüÃû:RS = CS  RW = SID_lcd  E = SCLK_lcd
 
-/*****LCDæ¥å£å®šä¹‰*****/
+/*****LCD½Ó¿Ú¶¨Òå*****/
 #define LCD12864_SID LCD_SID
 #define LCD12864_SCLK LCD_SCLK
 
-#define USEPSB 0 // PSBæ¥åœ°å°±ä¸éœ€è¦è¯¥å¼•è„šäº†
+#define USEPSB 0 // PSB½ÓµØ¾Í²»ĞèÒª¸ÃÒı½ÅÁË
 #define USECS 0
 
 #define USE_MACRO 1
@@ -23,51 +23,51 @@ extern uint8_t code DDRAM_POS[8];
 
 #if USEPSB
 
-sbit PSB = P2 ^ 3; //ä¸²å¹¶å£é€‰æ‹© 1:å¹¶å£æ¨¡å¼; 0:ä¸²å£æ¨¡å¼;
+sbit PSB = P2 ^ 3; //´®²¢¿ÚÑ¡Ôñ 1:²¢¿ÚÄ£Ê½; 0:´®¿ÚÄ£Ê½;
 #endif
 #if USECS
-sbit CS = P4 ^ 0; //ç‰‡é€‰ä¿¡å·
+sbit CS = P4 ^ 0; //Æ¬Ñ¡ĞÅºÅ
 #endif
 
-/*****LCDåŠŸèƒ½åˆå§‹åŒ–æŒ‡ä»¤*****/
-#define CLEAR_SCREEN 0x01 //æ¸…å±æŒ‡ä»¤ï¼šæ¸…å±ä¸”ACå€¼ä¸º00H
-#define AC_INIT 0x02      //å°†ACè®¾ç½®ä¸º00Hã€‚ä¸”æ¸¸æ ‡ç§»åˆ°åŸç‚¹ä½ç½®
-#define CURSE_ADD 0x06 //è®¾å®šæ¸¸æ ‡ç§»åˆ°æ–¹å‘åŠå›¾åƒæ•´ä½“ç§»åŠ¨æ–¹å‘ï¼ˆé»˜è®¤æ¸¸æ ‡å³ç§»ï¼Œå›¾åƒæ•´ä½“ä¸åŠ¨ï¼‰
-#define FUN_MODE 0x30  //å·¥ä½œæ¨¡å¼ï¼š8ä½åŸºæœ¬æŒ‡ä»¤é›†
-#define DISPLAY_ON 0x0c  //æ˜¾ç¤ºå¼€,æ˜¾ç¤ºæ¸¸æ ‡ï¼Œä¸”æ¸¸æ ‡ä½ç½®åç™½
-#define DISPLAY_OFF 0x08 //æ˜¾ç¤ºå…³
-#define CURSE_DIR 0x14   //æ¸¸æ ‡å‘å³ç§»åŠ¨:AC=AC+1
-#define SET_CG_AC 0x40   //è®¾ç½®ACï¼ŒèŒƒå›´ä¸ºï¼š00H~3FH
+/*****LCD¹¦ÄÜ³õÊ¼»¯Ö¸Áî*****/
+#define CLEAR_SCREEN 0x01 //ÇåÆÁÖ¸Áî£ºÇåÆÁÇÒACÖµÎª00H
+#define AC_INIT 0x02      //½«ACÉèÖÃÎª00H¡£ÇÒÓÎ±êÒÆµ½Ô­µãÎ»ÖÃ
+#define CURSE_ADD 0x06 //Éè¶¨ÓÎ±êÒÆµ½·½Ïò¼°Í¼ÏñÕûÌåÒÆ¶¯·½Ïò£¨Ä¬ÈÏÓÎ±êÓÒÒÆ£¬Í¼ÏñÕûÌå²»¶¯£©
+#define FUN_MODE 0x30  //¹¤×÷Ä£Ê½£º8Î»»ù±¾Ö¸Áî¼¯
+#define DISPLAY_ON 0x0c  //ÏÔÊ¾¿ª,ÏÔÊ¾ÓÎ±ê£¬ÇÒÓÎ±êÎ»ÖÃ·´°×
+#define DISPLAY_OFF 0x08 //ÏÔÊ¾¹Ø
+#define CURSE_DIR 0x14   //ÓÎ±êÏòÓÒÒÆ¶¯:AC=AC+1
+#define SET_CG_AC 0x40   //ÉèÖÃAC£¬·¶Î§Îª£º00H~3FH
 #define SET_DD_AC 0x80
 
 #define LCDOPT_CMD 0
 #define LCDOPT_DATA 1
-/*å¯¹å¤–å‡½æ•°ä¸å®å‡½æ•°*/
-void lcd12864_Init();     //åˆå§‹åŒ–
-void lcd12864_Wait(void); //ç­‰å¾…lcd12864é€€å‡ºbusyçŠ¶æ€
+/*¶ÔÍâº¯ÊıÓëºêº¯Êı*/
+void lcd12864_Init();     //³õÊ¼»¯
+void lcd12864_Wait(void); //µÈ´ılcd12864ÍË³öbusy×´Ì¬
 void lcd12864_WriteOpt(uint8 option,
-                       uint8 byte); //å‘é€ä¿¡æ¯ æŒ‡ä»¤ï¼šopt=0 æ•°æ®ï¼šopt=1
+                       uint8 byte); //·¢ËÍĞÅÏ¢ Ö¸Áî£ºopt=0 Êı¾İ£ºopt=1
 
 #if USE_MACRO
-#define lcd12864_WriteCmd(byte) lcd12864_WriteOpt(LCDOPT_CMD, byte)   //å†™æŒ‡ä»¤
-#define lcd12864_WriteData(byte) lcd12864_WriteOpt(LCDOPT_DATA, byte) //å†™æ•°æ®
+#define lcd12864_WriteCmd(byte) lcd12864_WriteOpt(LCDOPT_CMD, byte)   //Ğ´Ö¸Áî
+#define lcd12864_WriteData(byte) lcd12864_WriteOpt(LCDOPT_DATA, byte) //Ğ´Êı¾İ
 #else
-void lcd12864_WriteCmd(uint8_t Cbyte);  //å†™æŒ‡ä»¤
-void lcd12864_WriteData(uint8_t Dbyte); //å†™æ•°æ®
+void lcd12864_WriteCmd(uint8_t Cbyte);  //Ğ´Ö¸Áî
+void lcd12864_WriteData(uint8_t Dbyte); //Ğ´Êı¾İ
 #endif
 
-/*å¸¸ç”¨æŒ‡ä»¤*/
+/*³£ÓÃÖ¸Áî*/
 #define lcd12864_SetAC(x, y) lcd12864_WriteCmd(DDRAM_POS[y] + x)
 #define lcd12864_CursorOn() lcd12864_WriteCmd(0x0f)
 #define lcd12864_CursorOff() lcd12864_WriteCmd(0x0c)
 #define lcd12864_CursorACC() lcd12864_WriteCmd(CURSE_DIR)
 
-/*å±å¹•æ˜¾ç¤º*/
+/*ÆÁÄ»ÏÔÊ¾*/
 void lcd12864_DDRAM(uint8_t m, uint8_t n, uint8_t *s);
 void lcd12864_DDRAM_plus(uint8_t m, uint8_t n, uint8_t *s, uint8 len);
-void lcd12864_DDRAM_Flush(uint8_t *str, uint8_t lineLength); //åˆ·å†™æ•´ä¸ªå±å¹•
+void lcd12864_DDRAM_Flush(uint8_t *str, uint8_t lineLength); //Ë¢Ğ´Õû¸öÆÁÄ»
 void lcd12864_GDRAM(uint8_t *pic);
 void lcd12864_HCDisp2(unsigned char *buf, char *str1, char *str2, char len, char pos_begin1, char pos_end1,
                       char pos_begin2, char pos_end2,
-                      unsigned int ms); //æ¨ªå‘æ»šåŠ¨æ˜¾ç¤ºä¸€æ®µå­—ç¬¦
+                      unsigned int ms); //ºáÏò¹ö¶¯ÏÔÊ¾Ò»¶Î×Ö·û
 #endif

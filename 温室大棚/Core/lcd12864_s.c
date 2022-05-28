@@ -20,16 +20,15 @@ uint8_t code DDRAM_POS[8] = {0x80, 0x90, 0x88, 0x98, 0xA0, 0xB0, 0xA8, 0xB8}; //
 static void SendByte(uint8_t Dbyte)
 {
     uint8_t i;
-    GLOBAL_IT_CLOSE();
     for (i = 0; i < 8; i++)
     {
-        LCD12864_SCLK = 0;
         Dbyte <<= 1;       //左移一位
         LCD12864_SID = CY; //溢出寄存
+        LCD12864_SCLK = 0;
         LCD12864_SCLK = 1;
+        _nop_();
         LCD12864_SCLK = 0;
     }
-    GLOBAL_IT_OPEN();
 }
 
 /**
@@ -73,7 +72,7 @@ void lcd12864_Wait(void)
 {
     do
     {
-        delayms(5);
+        delayms(2);
         SendByte(0xfc);             // 11111,RW(1),RS(0),0
     } while (0x80 & ReceiveByte()); // BF(.7)=1 Busy
 }
@@ -93,6 +92,7 @@ void lcd12864_WriteOpt(uint8 option, uint8 byte)
     SendByte(option ? 0xfa : 0xf8); // 11111,RW(0),RS(0),0
     SendByte(0xf0 & byte);          //高四位
     SendByte(0xf0 & byte << 4);     //低四位
+    lcd12864_Wait();
 #if USECS
     CS = 0;
 #endif
