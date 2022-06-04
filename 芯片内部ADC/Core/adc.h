@@ -26,5 +26,5 @@ ADRJ:
 #define ADC_SPEEDH 0x40  // 140 clocks
 #define ADC_SPEEDHH 0x60 // 70 clocks
 
-void InitADC(uint8 ch);
+void InitADC();
 uint16 GetADCResult(uint8 ch);
