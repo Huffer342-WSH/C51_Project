@@ -22,8 +22,9 @@
 #define GLOBAL_IT_CLOSE() EA = 0
 
 // P30
-sbit LCD_SID = P3 ^ 6;  // LCD12864串行SID
-sbit LCD_SCLK = P3 ^ 7; // LCD12864串行SCLK
+#define LCD_SID P36  // LCD12864′?DDSID
+#define LCD_SCLK P34 // LCD12864′?DDSCLK
+#define LCD_PSB P37
 
 sbit DHT11_DIO = P2 ^ 0; // dht11data端接单片机的P1^0口//
 
