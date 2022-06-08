@@ -18,7 +18,14 @@
 #define int32_t long
 #define float32 float
 
-#define USESTC12C5A60S2_H_
+#define GLOBAL_IT_OPEN() EA = 1
+#define GLOBAL_IT_CLOSE() EA = 0
+
+//引脚定义
+#define LCD_SID P36  // LCD12864串行SID
+#define LCD_SCLK P34 // LCD12864串行SCLK
+#define LCD_PSB P37
+
 
 
 #endif
