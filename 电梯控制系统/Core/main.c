@@ -376,6 +376,8 @@ void main(void)
     P2M0 = 0x00, P2M1 = 0x00;
 
     /*=============初始化=============*/
+    LED_OFF();
+    
     tm0_init();
     Uart_Init();
     lcd12864_Init();
@@ -387,7 +389,7 @@ void main(void)
     ResetPos(5 * StepPerFloor);
     memset(floorList, 0, sizeof(floorList));
     /*=============启动动画=============*/
-    // BootAnime();
+    BootAnime();
 
     /*=============主循环=============*/
     while (1)
